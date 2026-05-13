@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+set -eu
+
+
+# if we were provided with a port already, then just use that
+if [ -n "${PORT:-}" ]; then
+  echo "$PORT"
+  exit 0
+fi
+
+
+# ask arduino-cli for the list of connected boards, and then grep out the ports
+ports="$(arduino-cli board list | grep -oE '/dev/[^ ]+' || true)"
+
+# count the number of ports
+count="$(printf '%s\n' "$ports" | wc -w | tr -d ' ')"
+
+# if we have no ports available, error and bail
+if [ "$count" -eq 0 ]; then
+  echo 'No board detected.' >&2
+  exit 1
+fi
+
+# if we only have one, just use it
+if [ "$count" -eq 1 ]; then
+  echo "$ports"
+  exit 0
+fi
+
+# otherwise, prompt the user to choose, and take the first as the default
+default="$(printf '%s\n' "$ports" | sed -n '1p')"
+echo 'Multiple ports detected:' >&2
+echo "$ports" >&2
+echo -n "Enter the port to use (default: $default): " >&2
+read -r selected
+
+echo "${selected:-$default}"
