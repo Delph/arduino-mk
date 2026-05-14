@@ -21,7 +21,14 @@ ota-fs: $(FILESYSTEM)
 	python3 $(OTA_TOOL) -i $(OTA_HOST) -p $(OTA_PORT) $(OTA_AUTH) -f $(FILESYSTEM) -s
 
 
+# upload filesystem over serial
+upload-fs: $(FILESYSTEM)
+	@test -n "$(ESPTOOL)" || (echo "ESPTOOL must be defined" >&2; exit 1)
+	@test -n "$(FS_START)" || (echo "FS_START must be defined" >&2; exit 1)
+	python3 $(ESPTOOL) --port="$$(PORT=$(PORT) $(ARDUINO_MK_DIR)detect-port)" write_flash $(FS_START) $(FILESYSTEM)
+
+
 CLEAN+=$(FILESYSTEM)
 
 
-.PHONY: filesystem ota-fs
+.PHONY: filesystem ota-fs upload-fs

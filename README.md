@@ -118,6 +118,22 @@ You must set the filesystem size, and may set the data directory;
 
 This will also give you an `ota-fs` target, which you can use to upload the filesystem over-the-air, but you'll need OTA configured as well.
 
+You can also upload the filesystem image over serial with `upload-fs`. This requires your project to define the `ESPTOOL` path and the filesystem flash start address;
+```Makefile
+ESPTOOL:=$(HOME)/.arduino15/packages/esp8266/hardware/esp8266/3.1.2/tools/esptool/esptool.py
+FS_START:=0xDB000
+```
+
+Then run;
+```bash
+make upload-fs
+```
+
+The flash start address depends on the board and flash layout. You can override the detected serial port if needed;
+```bash
+make upload-fs PORT=/dev/ttyUSB0
+```
+
 ## Inclusion order
 Include `arduino.mk` first, followed by whichever optional makefiles your project needs;
 ```Makefile
